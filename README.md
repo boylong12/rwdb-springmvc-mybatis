@@ -1,0 +1,3 @@
+# rwdb-springmvc-mybatis
+读写分离 springmvc+mybatis
+通过spring的AbstractRoutingDataSource和mybatis Plugin拦截器实现非常友好的读写分离，原有代码不需要任何改变
