@@ -1,0 +1,68 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!-- 用来解决ResponseBody返回中文乱码问题 默认字符集是iso-8859-1，现在改成utf8 -->
+    <mvc:annotation-driven>
+        <mvc:message-converters register-defaults="true">
+            <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+                <property name="supportedMediaTypes" value="text/html;charset=UTF-8"/>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+    <!--<task:annotation-driven />-->
+    <!-- Spring定时器注解开关-->
+    <!--<task:annotation-driven />-->
+    <!-- 此处对于定时时间的配置会被注解中的时间配置覆盖，因此，以注解配置为准 -->
+    <!--<bean id="ScheduledTaskManager" class="com.glodon.train.common.ScheduledTaskManager"/>-->
+    <!--<task:scheduled-tasks scheduler="myScheduler">-->
+    <!--<task:scheduled ref="ScheduledTaskManager" method="persistRecord" cron="1/5 * * * * *"/>-->
+    <!--</task:scheduled-tasks>-->
+    <!--<task:scheduler id="myScheduler" pool-size="10"/>-->
+
+    <!--注入Web层组件-->
+    <context:annotation-config/>
+    <context:component-scan base-package="com.ldcr.rwdb.controller">
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+
+    <!--由Spring MVC框架自己处理静态资源-->
+    <mvc:resources mapping="/favicon.ico" location="/favicon.ico" cache-period="15552000"/><!--缓存半年-->
+    <mvc:resources mapping="/js/**" location="/WEB-INF/resources/js/" cache-period="1"/><!--单位是秒 设置缓存0.5天-->
+    <mvc:resources mapping="/css/**" location="/WEB-INF/resources/css/" cache-period="1"/>
+    <mvc:resources mapping="/images/**" location="/WEB-INF/resources/images/" cache-period="1"/>
+    <mvc:resources mapping="/fonts/**" location="/WEB-INF/resources/fonts/" cache-period="1"/>
+    <!--<mvc:resources mapping="/sp/**" location="/WEB-INF/resources/sp/" cache-period="259200" />-->
+    <mvc:resources mapping="/kindeditor/**" location="/WEB-INF/kindeditor/" cache-period="1"/>
+
+    <!-- SpringMVC上传文件时,需配置MultipartResolver处理器 -->
+    <!--<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">-->
+    <!--&lt;!&ndash; 指定所上传文件的总大小,注意maxUploadSize属性的限制不是针对单个文件,而是所有文件的容量之和 &ndash;&gt;-->
+    <!--<property name="maxUploadSize" value="#{1024 * 1024 * 1024 * 3}"/>-->
+    <!--</bean>-->
+
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/pages/jsp/"/>
+        <property name="suffix" value=""/>
+        <!--可为空,方便实现自已的依据扩展名来选择视图解释类的逻辑  -->
+        <property name="contentType" value="text/html;charset=UTF-8"/>
+    </bean>
+
+    <!--定义异常处理页面-->
+    <bean id="exceptionResolver" class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+        <property name="exceptionMappings">
+            <props>
+                <!-- 遇到MaxUploadSizeExceededException异常时,自动跳转到/WEB-INF/jsp/error_fileupload.jsp页面 -->
+                <prop key="org.springframework.web.multipart.MaxUploadSizeExceededException">errorFileUpload</prop>
+                <prop key="java.sql.SQLException">exception</prop>
+                <prop key="java.io.IOException">exception</prop>
+            </props>
+        </property>
+    </bean>
+
+</beans>
